@@ -11,45 +11,32 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.time.Month;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Tasks {
+public class Oylik {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    private String name;
-
-    private String izoh;
-
-    private Date dateFinish;
-
-    @ManyToOne
-    private ActiveTask activeTask;
-
-    @CreatedBy
-    @Column(updatable = false)
-    private Long createby;  //taskni kim qo'shganligi
-
-    @LastModifiedBy
-    private Long updateby;  //taskni kim update qilganligi
+    private Double oylikmiqdori;
 
     @CreationTimestamp
-    @Column(updatable = false)
     private Timestamp createAt;
 
     @UpdateTimestamp
     private Timestamp updateAt;
 
-    @ManyToOne
+    @OneToOne
     private User user;
+
+
+
 
 }

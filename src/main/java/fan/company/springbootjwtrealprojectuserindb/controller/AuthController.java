@@ -1,11 +1,14 @@
 package fan.company.springbootjwtrealprojectuserindb.controller;
 
+import fan.company.springbootjwtrealprojectuserindb.entity.Turniket;
+import fan.company.springbootjwtrealprojectuserindb.entity.User;
 import fan.company.springbootjwtrealprojectuserindb.payload.ApiResult;
 import fan.company.springbootjwtrealprojectuserindb.payload.LoginDto;
 import fan.company.springbootjwtrealprojectuserindb.payload.PasswordDto;
 import fan.company.springbootjwtrealprojectuserindb.payload.RegisterDto;
 import fan.company.springbootjwtrealprojectuserindb.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +29,6 @@ public class AuthController {
         return ResponseEntity.status(apiResult.isSuccess()? HttpStatus.CREATED:HttpStatus.CONFLICT).body(apiResult);
     }
 
-    @PreAuthorize(value = "hasAnyRole('ROLE_DIRECTOR', 'ROLE_HR_MANAGER', 'ROLE_XODIM')")
     @PostMapping("/verifyEmail")
     public HttpEntity<?> emailOrqaliTasdiqlash(@RequestParam String emailCode,
                                                @RequestParam String email, @RequestBody PasswordDto password){
@@ -34,11 +36,18 @@ public class AuthController {
         return ResponseEntity.status(apiResult.isSuccess()? HttpStatus.OK:HttpStatus.CONFLICT).body(apiResult);
     }
 
-    @PreAuthorize(value = "hasAnyRole('ROLE_DIRECTOR', 'ROLE_HR_MANAGER', 'ROLE_XODIM')")
+
     @PostMapping("/login")
     public HttpEntity<?> loginUser(@RequestBody LoginDto loginDto){
         ApiResult apiResult = service.loginUser(loginDto);
         return ResponseEntity.status(apiResult.isSuccess()? HttpStatus.OK:HttpStatus.UNAUTHORIZED).body(apiResult);
+    }
+
+    @PreAuthorize(value = "hasAnyRole('ROLE_DIRECTOR', 'ROLE_HR_MANAGER')")
+    @GetMapping
+    public ResponseEntity<?> getAll(@RequestParam Integer page) {
+        Page<User> all = service.getAll(page);
+        return ResponseEntity.status(all.hasContent() ? HttpStatus.OK : HttpStatus.CONFLICT).body(all);
     }
 
 }

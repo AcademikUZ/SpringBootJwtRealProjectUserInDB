@@ -6,6 +6,7 @@ import fan.company.springbootjwtrealprojectuserindb.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -46,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                                        "/api/auth/verifyEmail",
 //                                        "/api/auth/login"
 //                ).permitAll()
+                .antMatchers("/api/auth/login", "/api/auth/verifyEmail").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

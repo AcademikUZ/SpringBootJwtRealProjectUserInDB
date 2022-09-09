@@ -39,7 +39,7 @@ public class TaskService {
     JavaMailSender javaMailSender;
 
 
-    public ApiResult edit(UUID id, TaskDto dto) {
+    public ApiResult edit(Long id, TaskDto dto) {
 
         User userInSystem = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -80,22 +80,34 @@ public class TaskService {
         return repository.findAll(pageable);
     }
 
-    public List<Tasks> getAllMuTask() {
+    public List<Tasks> getAllMyTask() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return repository.findAllByUser(user);
     }
 
-    public Tasks getOne(UUID id) {
+    public List<Tasks> getAllByUser(Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(!optionalUser.isPresent())
+            return new ArrayList<>();
+        return repository.findAllByUser(optionalUser.get());
+    }
+
+    public Tasks getOne(Long id) {
         return repository.findById(id).orElse(null);
     }
 
-    public ApiResult delete(UUID id) {
+    public ApiResult delete(Long id) {
         Optional<Tasks> optional = repository.findById(id);
         if (!optional.isPresent()) {
             return new ApiResult("Tanlangan task mavjud emas.", false);
         }
         repository.deleteById(id);
         return new ApiResult("Muvoffaqaiyatli o'chirildi!", true);
+    }
+
+    public List<Tasks> getMuddatiOtibKetganVazifalar(){
+        List<Tasks> allByDateFinishBefore = repository.findAllByDateFinishBefore(new Date());
+        return allByDateFinishBefore;
     }
 
     public ApiResult add(TaskDto dto) {

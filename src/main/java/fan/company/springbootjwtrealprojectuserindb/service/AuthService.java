@@ -1,5 +1,6 @@
 package fan.company.springbootjwtrealprojectuserindb.service;
 
+import fan.company.springbootjwtrealprojectuserindb.entity.Turniket;
 import fan.company.springbootjwtrealprojectuserindb.payload.PasswordDto;
 import fan.company.springbootjwtrealprojectuserindb.security.PasswordValidator;
 import fan.company.springbootjwtrealprojectuserindb.entity.enumes.RoleType;
@@ -11,6 +12,9 @@ import fan.company.springbootjwtrealprojectuserindb.payload.ApiResult;
 import fan.company.springbootjwtrealprojectuserindb.payload.RegisterDto;
 import fan.company.springbootjwtrealprojectuserindb.security.tokenGenerator.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -58,11 +62,18 @@ public class AuthService implements UserDetailsService {
 
             if (userInSystem != null) {
                 if (userInSystem.getRoles().getId() >= registerDto.getRoleId()
-                        || userInSystem.getRoles().getRoleName().equals(RoleType.ROLE_XODIM)) {
+                        || userInSystem.getRoles().getRoleName().equals(RoleType.ROLE_XODIM)
+
+                ) {
                     return new ApiResult("Sizda bunday huquq yo'q", false);
                 }
+            } else{
+                    return new ApiResult("Avval tizimga kiring", false);
             }
 
+            if(userInSystem.getRoles().getId() ==1 && registerDto.getRoleId()>3){
+                return new ApiResult("Direktor faqat managerlarni qo'sha oladi!", false);
+            }
 
             boolean existsByEmail = userRepository.existsByEmail(registerDto.getEmail());
             if (existsByEmail)
@@ -153,6 +164,17 @@ public class AuthService implements UserDetailsService {
                     loginDto.getUsername(),
                     loginDto.getPassword()
             ));
+//
+//            Optional<User> optionalUser = userRepository.findByEmail(loginDto.getUsername());
+//            if (!optionalUser.isPresent()) {
+//                return new ApiResult("Login yoki parol xato!", false);
+//            }
+//
+//            if (!passwordEncoder.matches(loginDto.getPassword(), optionalUser.get().getPassword())) {
+//                return new ApiResult("Login yoki parol xato!", false);
+//            }
+
+
             User user = (User) authenticate.getPrincipal();
             String token = jwtProvider.generateToken(loginDto.getUsername(), user.getRoles());
             return new ApiResult("Token", true, token);
@@ -171,5 +193,9 @@ public class AuthService implements UserDetailsService {
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username + " topilmadi!"));
 
+    }
+    public Page<User> getAll(Integer page) {
+        Pageable pageable = PageRequest.of(page, 10);
+        return userRepository.findAll(pageable);
     }
 }
